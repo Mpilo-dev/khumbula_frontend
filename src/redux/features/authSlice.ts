@@ -90,6 +90,7 @@ export const updateUserProfile = createAsyncThunk(
       const token = auth.token;
 
       if (!token) throw new Error("Unauthorized");
+      if (!updatedProfile) throw new Error("No profile data provided");
 
       const response = await api.patch(
         "api/v1/users/updateMe",
@@ -98,6 +99,16 @@ export const updateUserProfile = createAsyncThunk(
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      // Handle 202 status (OTP sent case)
+      if (response.status === 202) {
+        return {
+          status: "pending",
+          message: response.data.message,
+          phoneNumber: updatedProfile.phoneNumber || "",
+          user: response.data.data?.user || auth.user,
+        };
+      }
 
       if (response.data?.status !== "success") {
         throw new Error(response.data?.message || "Update rejected by server");

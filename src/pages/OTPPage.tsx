@@ -79,7 +79,7 @@ const OTPPage: React.FC = () => {
             state: { phoneNumber: data.phoneNumber, otp: data.otp },
           });
         } else if (purpose === "phoneVerification") {
-          navigate("/dashboard");
+          navigate("/profile");
         }
       } else {
         console.error("OTP verification failed:", result.data);
