@@ -10,12 +10,13 @@ import PrimaryButton, {
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { updateUserProfile } from "../redux/features/authSlice";
+// import { AppDispatch } from "../redux/store";
 
 type UpdateMeItem = {
   firstName?: string;
   lastName?: string;
   userName?: string;
-  gender?: string;
+  gender?: "Male" | "Female" | "Other";
   dateOfBirth?: string;
   phoneNumber?: string;
 };
@@ -35,7 +36,7 @@ const ManageProfilePage: React.FC = () => {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       userName: user?.userName || "",
-      gender: user?.gender || "",
+      gender: user?.gender || "Male",
       dateOfBirth: user?.dateOfBirth?.split("T")[0] || "",
       phoneNumber: user?.phoneNumber || "",
     },
@@ -62,42 +63,102 @@ const ManageProfilePage: React.FC = () => {
     setErrorMessage("Please fix the errors in the form");
   };
 
+  // const handleSubmitProfile = async (data: UpdateMeItem) => {
+  //   setIsLoading(true);
+  //   setErrorMessage("");
+  //   setSuccessMessage("");
+
+  //   try {
+  //     // Check if phone number is being changed
+  //     if (data.phoneNumber && data.phoneNumber !== user?.phoneNumber) {
+  //       // Format phone number to match backend expectations
+  //       let formattedPhoneNumber = data.phoneNumber.trim();
+  //       if (formattedPhoneNumber.startsWith("0")) {
+  //         formattedPhoneNumber = "+27" + formattedPhoneNumber.slice(1);
+  //       }
+
+  //       // Navigate to OTP page with the new phone number
+  //       navigate("/phone-otp", {
+  //         state: {
+  //           phoneNumber: formattedPhoneNumber,
+  //           purpose: "phoneVerification",
+  //           otherFields: {
+  //             firstName: data.firstName,
+  //             lastName: data.lastName,
+  //             userName: data.userName,
+  //             gender: data.gender,
+  //             dateOfBirth: data.dateOfBirth,
+  //           },
+  //         },
+  //       });
+  //       return;
+  //     }
+
+  //     // Regular update if phone isn't changing
+  //     const updateData = {
+  //       firstName: data.firstName,
+  //       lastName: data.lastName,
+  //       userName: data.userName,
+  //       gender: data.gender,
+  //       dateOfBirth: data.dateOfBirth,
+  //     };
+
+  //     // Dispatch the update action with proper typing
+  //     await dispatch(updateUserProfile(updateData) as any).unwrap();
+
+  //     setSuccessMessage("Profile updated successfully!");
+  //   } catch (error: any) {
+  //     console.error("Update error:", error);
+  //     setErrorMessage(error?.message || "Update failed");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSubmitProfile = async (data: UpdateMeItem) => {
     setIsLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
 
     try {
-      // Check if phone number is being changed
-      if (data.phoneNumber && data.phoneNumber !== user?.phoneNumber) {
-        // Navigate to OTP page with the new phone number
-        navigate("/phone-otp", {
-          state: {
-            phoneNumber: data.phoneNumber,
-            otherFields: {
-              firstName: data.firstName,
-              lastName: data.lastName,
-              userName: data.userName,
-              gender: data.gender,
-              dateOfBirth: data.dateOfBirth,
-            },
-          },
-        });
-        return;
+      // Format phone number consistently
+      let formattedPhoneNumber = data.phoneNumber?.trim() || "";
+      if (formattedPhoneNumber.startsWith("0")) {
+        formattedPhoneNumber = "+27" + formattedPhoneNumber.slice(1);
       }
 
-      // Regular update if phone isn't changing
-      const updateData = {
+      // Prepare the update data
+      const updateData: any = {
         firstName: data.firstName,
         lastName: data.lastName,
         userName: data.userName,
         gender: data.gender,
         dateOfBirth: data.dateOfBirth,
       };
-      // Dispatch the update action
-      await dispatch(updateUserProfile(updateData)).unwrap();
 
-      setSuccessMessage("Profile updated successfully!");
+      // Only include phoneNumber if it's different from current
+      if (formattedPhoneNumber && formattedPhoneNumber !== user?.phoneNumber) {
+        updateData.phoneNumber = formattedPhoneNumber;
+      }
+
+      // Dispatch the update action
+      const result = await dispatch(
+        updateUserProfile(updateData) as any
+      ).unwrap();
+
+      // Check the response from the backend
+      if (result?.status === "pending") {
+        // Phone number change detected, navigate to OTP page
+        navigate("/phone-otp", {
+          state: {
+            phoneNumber: formattedPhoneNumber,
+            purpose: "phoneVerification",
+          },
+        });
+      } else if (result?.status === "success") {
+        // Regular update successful
+        setSuccessMessage("Profile updated successfully!");
+      }
     } catch (error: any) {
       console.error("Update error:", error);
       setErrorMessage(error?.message || "Update failed");
