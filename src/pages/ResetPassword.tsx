@@ -49,7 +49,7 @@ const ResetPasswordPage: React.FC = () => {
         })
       ).unwrap();
 
-      navigate("/login", {
+      navigate("/", {
         state: {
           message:
             "Password reset successfully. Please login with your new password.",

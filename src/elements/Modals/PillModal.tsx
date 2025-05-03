@@ -215,7 +215,7 @@ const PillModal: React.FC<PillModalProps> = ({ handleClose, pill }) => {
 
             <div className="w-full h-auto pt-[30px] px-[20px] py-[16px] self-end">
               <PrimaryButton
-                label={pill ? "Edit pill" : "Create pill"}
+                label={pill ? "Update pill" : "Create pill"}
                 type={BUTTON_TYPES.submit}
                 buttonType={PRIMARY_BUTTON_TYPE.primary}
                 loading={false}
