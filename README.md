@@ -57,6 +57,18 @@ This will run the app locally at http://localhost:8000.
 
 ## 📷 Screenshots
 
+![Register](./public/screenshots/register.png)
+![Login](./public/screenshots/login.png)
+![Forgot Password](./public/screenshots/forgot_password.png)
+![Dashboard](./public/screenshots/dashboard.png)
+![Side Bar](./public/screenshots/side_bar.png)
+![Add Pill](./public/screenshots/add_pill.png)
+![Update Pill](./public/screenshots/update_pill.png)
+![Pill List](./public/screenshots/pill_list.png)
+![Create Alert](./public/screenshots/create_alert.png)
+![Alert List](./public/screenshots/alert_list.png)
+![Update Alert](./public/screenshots/update_alert.png)
+
 ## ✨ Future Enhancements
 
 - The project will be updated as it's still a work in progress

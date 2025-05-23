@@ -85,7 +85,7 @@ const ForgotPasswordPage: React.FC = () => {
                       fontColor={`text-black`}
                     />
                     <CustomText
-                      textLabel={"Password reset link"}
+                      textLabel={"Password reset OTP"}
                       fontWeight="font-regular"
                       fontSize="text-[22px]"
                       fontColor={`text-black`}
