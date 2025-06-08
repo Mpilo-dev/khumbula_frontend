@@ -460,7 +460,7 @@ const CreateAlertPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="w-full h-auto px-[20px] py-[16px] flex flex-row justify-center items-center">
+            {/* <div className="w-full h-auto px-[20px] py-[16px] flex flex-row justify-center items-center">
               <div className="w-full h-auto self-start">
                 <TextInputField
                   name={"usernamePhone"}
@@ -469,7 +469,7 @@ const CreateAlertPage: React.FC = () => {
                   hideLabel={false}
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="w-full h-auto px-[20px] py-[16px] flex flex-col justify-center gap-y-[16px]">
               <CustomText

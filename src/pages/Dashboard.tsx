@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
           isLoading={isDeleting}
         />
       )}
-
+      {/* 
       <div className="w-[220px] h-auto absolute top-3 right-3">
         <div className="w-full h-auto p-[1px] bg-[#d5d5d5] rounded-full flex flex-row justify-center items-center">
           <CustomToggle
@@ -87,7 +87,7 @@ const Dashboard: React.FC = () => {
             isPrimary={true}
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="w-[445px] h-[90%] tSM2:h-[100%] flex flex-col bg-white rounded-[14px] tSM2:rounded-none shadow shadow-[#E7F0EF] relative z-0">
         {showSidebar && (

@@ -153,6 +153,7 @@ const ManageProfilePage: React.FC = () => {
           state: {
             phoneNumber: formattedPhoneNumber,
             purpose: "phoneVerification",
+            source: "profileUpdate",
           },
         });
       } else if (result?.status === "success") {
