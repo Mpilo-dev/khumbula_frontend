@@ -49,12 +49,23 @@ export const RegisterValidation = Yup.object().shape({
   phoneNumber: Yup.string().required("Phone number is required"),
 });
 
+export type PillFormData = {
+  pillName: string;
+  totalCapsules: number;
+  capsulesPerServing: number;
+};
+
 export const PillCreationValidation = Yup.object().shape({
   pillName: Yup.string().required("Pill name is required"),
   totalCapsules: Yup.number()
     .typeError("Total number of capsules is required")
     .required("Total number of capsules is required")
     .min(1, "Total capsules must be at least 1"),
+  capsulesPerServing: Yup.number()
+    .typeError("Capsules per serving is required")
+    .required("Capsules per serving is required")
+    .min(1, "Must be at least 1 capsule per serving")
+    .max(3, "Maximum 3 capsules per serving"),
 });
 
 export const AlertValidationSchema = Yup.object().shape({

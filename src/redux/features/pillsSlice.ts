@@ -31,15 +31,37 @@ export const createPill = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      console.log("Creating pill with data:", {
+        name,
+        totalCapsules,
+        capsulesPerServing,
+      });
+
       const response = await api.post("api/v1/pills", {
         name,
         totalCapsules,
         capsulesPerServing,
       });
+
+      console.log("Pill creation API response:", {
+        status: response.status,
+        data: response.data,
+      });
+
       return response.data.data.pill;
     } catch (error: any) {
+      console.error("Pill creation API error:", {
+        error,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        stack: error.stack,
+      });
+
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create pill"
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to create pill"
       );
     }
   }
