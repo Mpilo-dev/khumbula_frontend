@@ -88,12 +88,12 @@ const Home: React.FC = () => {
         >
           <form
             onSubmit={handleSubmit(customHandleSubmit, onError)}
-            className="w-full h-screen flex flex-row justify-center items-center"
+            className="w-full h-full flex flex-row justify-center items-center"
           >
-            <div className="w-full h-auto flex flex-col justify-center items-center gap-y-[20px] px-[28px]">
+            <div className="w-full h-full flex flex-col justify-center items-center gap-y-[20px] px-[28px] py-[20px] overflow-hidden">
               <img
                 src={Logo}
-                className="w-[80%] h-auto tSM:w-[90%] pb-[16px]"
+                className="w-[80%] h-auto tSM:w-[90%]"
                 alt="active address Khumbula logo"
               />
 
@@ -118,7 +118,7 @@ const Home: React.FC = () => {
                 </div>
               </div>
 
-              <div className="w-full h-auto pt-[16px]">
+              <div className="w-full h-auto">
                 <PrimaryButton
                   label={"Continue"}
                   type={BUTTON_TYPES.submit}
@@ -128,9 +128,7 @@ const Home: React.FC = () => {
               </div>
 
               {errorMessage && (
-                <div className="text-red-500 text-center mt-2">
-                  {errorMessage}
-                </div>
+                <div className="text-red-500 text-center">{errorMessage}</div>
               )}
 
               <div className="w-full h-auto flex flex-row justify-center items-center gap-x-2">

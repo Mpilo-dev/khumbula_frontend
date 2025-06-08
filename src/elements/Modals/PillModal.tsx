@@ -5,7 +5,11 @@ import { useNavigate } from "react-router-dom";
 import CustomText from "../Text/CustomText";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { BUTTON_TYPES, PillCreationValidation } from "../../helpers/types";
+import {
+  BUTTON_TYPES,
+  PillCreationValidation,
+  PillFormData,
+} from "../../helpers/types";
 import TextInputField from "../Input/TextInputField";
 import PrimaryButton, { PRIMARY_BUTTON_TYPE } from "../Buttons/PrimaryButton";
 import { useDispatch } from "react-redux";
@@ -18,15 +22,10 @@ import {
 
 const MAX_PER_SERVING: number = 3;
 
-type PillFormData = {
-  pillName: string;
-  totalCapsules: number;
-};
-
-type PillModalProps = {
+interface PillModalProps {
   handleClose: () => void;
   pill?: Pill;
-};
+}
 
 const PillModal: React.FC<PillModalProps> = ({ handleClose, pill }) => {
   const navigate = useNavigate();
@@ -35,9 +34,12 @@ const PillModal: React.FC<PillModalProps> = ({ handleClose, pill }) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [serving, setServing] = useState<number>(pill?.capsulesPerServing || 1);
 
+  console.log("PillModal rendered with props:", { pill, serving });
+
   const PillFormDefaultValues: PillFormData = {
     pillName: pill?.name || "",
     totalCapsules: pill?.totalCapsules || 1,
+    capsulesPerServing: pill?.capsulesPerServing || 1,
   };
 
   const {
@@ -54,10 +56,73 @@ const PillModal: React.FC<PillModalProps> = ({ handleClose, pill }) => {
   });
 
   useEffect(() => {
+    console.log("Form state updated:", {
+      defaultValues,
+      isValid,
+      formState,
+    });
+  }, [defaultValues, isValid, formState]);
+
+  const customHandleSubmit = async (dataResults: PillFormData, e?: any) => {
+    e?.preventDefault();
+    console.log("Starting pill submission with data:", {
+      formData: dataResults,
+      serving,
+      isUpdate: !!pill,
+    });
+
+    try {
+      if (pill) {
+        // Update existing pill
+        const updateData = {
+          _id: pill._id,
+          name: dataResults.pillName,
+          totalCapsules: dataResults.totalCapsules,
+          capsulesPerServing: serving,
+        };
+        console.log("Attempting to update pill with data:", updateData);
+        await dispatch(updatePill(updateData)).unwrap();
+      } else {
+        // Create new pill
+        const createData = {
+          name: dataResults.pillName,
+          totalCapsules: dataResults.totalCapsules,
+          capsulesPerServing: serving,
+        };
+        console.log("Attempting to create pill with data:", createData);
+        const result = await dispatch(createPill(createData)).unwrap();
+        console.log("Pill creation result:", result);
+      }
+
+      console.log("Fetching updated pills list");
+      await dispatch(fetchPills()).unwrap();
+      handleClose();
+    } catch (error: any) {
+      console.error("Pill operation failed with details:", {
+        error,
+        errorMessage: error.message,
+        errorResponse: error.response?.data,
+        errorStatus: error.response?.status,
+        errorStack: error.stack,
+      });
+      setErrorMessage(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to save pill. Please try again."
+      );
+    }
+  };
+
+  useEffect(() => {
+    setValue("capsulesPerServing", serving);
+  }, [serving, setValue]);
+
+  useEffect(() => {
     if (pill) {
       reset({
         pillName: pill.name,
         totalCapsules: pill.totalCapsules,
+        capsulesPerServing: pill.capsulesPerServing,
       });
       setServing(pill.capsulesPerServing);
     } else {
@@ -65,32 +130,8 @@ const PillModal: React.FC<PillModalProps> = ({ handleClose, pill }) => {
     }
   }, [pill, reset]);
 
-  const customHandleSubmit = async (dataResults: PillFormData, e?: any) => {
-    e?.preventDefault();
-
-    const pillData = {
-      _id: pill?._id,
-      name: dataResults.pillName,
-      totalCapsules: dataResults.totalCapsules,
-      capsulesPerServing: serving,
-    };
-
-    try {
-      let updatedPill;
-      if (pill) {
-        updatedPill = await dispatch(updatePill(pillData)).unwrap();
-      } else {
-        await dispatch(createPill(pillData)).unwrap();
-      }
-      await dispatch(fetchPills()).unwrap();
-
-      handleClose();
-    } catch (error: any) {
-      setErrorMessage(error.message || "Something went wrong");
-    }
-  };
-
   const onError = (errors: any) => {
+    console.log("Form validation errors:", errors);
     setErrorMessage("Please fix the errors before submitting.");
   };
 
@@ -158,6 +199,7 @@ const PillModal: React.FC<PillModalProps> = ({ handleClose, pill }) => {
             />
           </div>
         </div>
+
         <FormProvider
           control={control}
           handleSubmit={handleSubmit}
@@ -212,6 +254,12 @@ const PillModal: React.FC<PillModalProps> = ({ handleClose, pill }) => {
                 {renderPills()}
               </div>
             </div>
+
+            {errorMessage && (
+              <div className="text-red-500 text-center px-[20px] py-[8px]">
+                {errorMessage}
+              </div>
+            )}
 
             <div className="w-full h-auto pt-[30px] px-[20px] py-[16px] self-end">
               <PrimaryButton

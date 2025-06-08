@@ -11,6 +11,7 @@ import { VerifyOtpValidation } from "../helpers/types";
 import { AppDispatch } from "../redux/store";
 
 type OTPPurpose = "phoneVerification" | "resetPassword";
+type VerificationSource = "registration" | "profileUpdate";
 
 const OTPPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,10 +19,14 @@ const OTPPage: React.FC = () => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { phoneNumber, purpose } =
-    (location.state as { phoneNumber: string; purpose: OTPPurpose }) || {};
+  const { phoneNumber, purpose, source } =
+    (location.state as {
+      phoneNumber: string;
+      purpose: OTPPurpose;
+      source?: VerificationSource;
+    }) || {};
 
-  console.log("OTP Page - Location state:", { phoneNumber, purpose });
+  console.log("OTP Page - Location state:", { phoneNumber, purpose, source });
 
   const methods = useForm({
     resolver: yupResolver(VerifyOtpValidation),
@@ -79,7 +84,14 @@ const OTPPage: React.FC = () => {
             state: { phoneNumber: data.phoneNumber, otp: data.otp },
           });
         } else if (purpose === "phoneVerification") {
-          navigate("/profile");
+          if (source === "profileUpdate") {
+            navigate("/profile", {
+              state: { updatedPhoneNumber: data.phoneNumber },
+            });
+          } else {
+            // Default fallback to dashboard
+            navigate("/dashboard");
+          }
         }
       } else {
         console.error("OTP verification failed:", result.data);
