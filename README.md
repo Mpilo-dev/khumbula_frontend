@@ -2,6 +2,10 @@
 
 This is the front-end of the **Khumbula** application, built using React, TypeScript, Tailwind CSS, Redux Toolkit for state management, axios for http requests and React-hook-form + Yup for form handling and validation.
 
+### Note
+
+Best experience on mobile phone
+
 🚧 This project is a work in progress and will continue to evolve as I actively grow and apply new skills throughout my development journey.
 
 ## Description
