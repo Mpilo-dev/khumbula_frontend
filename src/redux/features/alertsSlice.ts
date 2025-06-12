@@ -112,8 +112,15 @@ export const updateAlert = createAsyncThunk<
   { rejectValue: string }
 >("alerts/updateAlert", async ({ id, data }, { rejectWithValue }) => {
   try {
+    console.log("updateAlert thunk received data:", data);
+
     // Format the alert times as strings in HH:mm format
     const formattedAlertTimes = (data.alertTimes || []).map((time) => {
+      // Handle both string and object formats
+      if (typeof time === "string") {
+        return time; // Already in HH:mm format
+      }
+      // Handle object format
       const hours = String(time.hours).padStart(2, "0");
       const minutes = String(time.minutes).padStart(2, "0");
       return `${hours}:${minutes}`;
@@ -122,11 +129,33 @@ export const updateAlert = createAsyncThunk<
     const formattedData = {
       ...data,
       alertTimes: formattedAlertTimes,
+      pills: data.pills || [],
+      timesPerDay: Number(data.timesPerDay) || 1,
     };
 
+    console.log("Sending formatted data to backend:", formattedData);
+
     const response = await api.patch(`/api/v1/alerts/${id}`, formattedData);
-    return response.data.data.alert;
+    console.log("Backend response:", response.data);
+
+    // Format the response data
+    const alert = response.data.data.alert;
+    return {
+      ...alert,
+      alertTimes: alert.alertTimes.map((time: any) => {
+        if (typeof time === "string") {
+          const [hours, minutes] = time.split(":");
+          return {
+            hours: parseInt(hours, 10),
+            minutes: parseInt(minutes, 10),
+          };
+        }
+        // If it's already an object, return as is
+        return time;
+      }),
+    };
   } catch (error: any) {
+    console.error("Error in updateAlert thunk:", error);
     return rejectWithValue(
       error.response?.data?.message || "Failed to update alert"
     );
@@ -216,16 +245,23 @@ const alertsSlice = createSlice({
       })
 
       .addCase(updateAlert.pending, (state) => {
+        console.log("updateAlert pending");
         state.loading = true;
         state.error = null;
       })
       .addCase(updateAlert.fulfilled, (state, action) => {
+        console.log("updateAlert fulfilled with payload:", action.payload);
         state.loading = false;
-        state.alerts = state.alerts.map((alert) =>
-          alert._id === action.payload._id ? action.payload : alert
-        );
+        // Update the alerts array with the new data
+        state.alerts = state.alerts.map((alert) => {
+          if (alert._id === action.payload._id) {
+            return action.payload;
+          }
+          return alert;
+        });
       })
       .addCase(updateAlert.rejected, (state, action) => {
+        console.error("updateAlert rejected:", action.payload);
         state.loading = false;
         state.error = action.payload || "Failed to update alert";
       });

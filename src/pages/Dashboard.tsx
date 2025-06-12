@@ -37,6 +37,13 @@ const Dashboard: React.FC = () => {
     dispatch(fetchAlerts());
   }, [dispatch]);
 
+  // Add effect to refresh alerts when selectedAlert changes
+  useEffect(() => {
+    if (!selectedAlert) {
+      dispatch(fetchAlerts());
+    }
+  }, [selectedAlert, dispatch]);
+
   const handleDeleteAlert = async (alertId: string) => {
     setIsDeleting(true);
     try {
