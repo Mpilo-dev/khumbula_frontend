@@ -39,8 +39,8 @@ const AlertDetailsModal: React.FC<AlertDetailsModalProps> = ({
   const [editedAlert, setEditedAlert] = useState<Partial<Alert> | null>(null);
   const [showPillListModal, setShowPillListModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [timesPerDay, setTimesPerDay] = useState(1);
-  const [alertTimes, setAlertTimes] = useState<AlertTime[]>([]);
+  // const [timesPerDay, setTimesPerDay] = useState(1);
+  // const [alertTimes, setAlertTimes] = useState<AlertTime[]>([]);
 
   useEffect(() => {
     dispatch(fetchPills());
@@ -55,8 +55,8 @@ const AlertDetailsModal: React.FC<AlertDetailsModalProps> = ({
           minutes: time.minutes,
         })),
       });
-      setTimesPerDay(alert.timesPerDay);
-      setAlertTimes(alert.alertTimes);
+      // setTimesPerDay(alert.timesPerDay);
+      // setAlertTimes(alert.alertTimes);
     }
   }, [alert]);
 
@@ -72,14 +72,14 @@ const AlertDetailsModal: React.FC<AlertDetailsModalProps> = ({
       return;
     }
 
-    setAlertTimes((prev) => {
-      const newAlertTimes = [...prev];
-      newAlertTimes[index] = {
-        hours: Math.max(0, Math.min(23, hours)),
-        minutes: Math.max(0, Math.min(59, minutes)),
-      };
-      return newAlertTimes;
-    });
+    // setAlertTimes((prev) => {
+    //   const newAlertTimes = [...prev];
+    //   newAlertTimes[index] = {
+    //     hours: Math.max(0, Math.min(23, hours)),
+    //     minutes: Math.max(0, Math.min(59, minutes)),
+    //   };
+    //   return newAlertTimes;
+    // });
 
     setEditedAlert((prev) => {
       if (!prev) return null;
@@ -92,11 +92,69 @@ const AlertDetailsModal: React.FC<AlertDetailsModalProps> = ({
     });
   };
 
+  // const handleTimesPerDayChange = (newTimesPerDay: number) => {
+  //   console.log("Changing times per day to:", newTimesPerDay);
+
+  //   // First update the local state
+  //   setTimesPerDay(newTimesPerDay);
+
+  //   // Update alertTimes array to match new timesPerDay
+  //   const newAlertTimes = [...alertTimes];
+  //   if (newTimesPerDay < newAlertTimes.length) {
+  //     // If reducing times, remove extra times
+  //     newAlertTimes.splice(newTimesPerDay);
+  //   } else {
+  //     // If increasing times, add default times
+  //     while (newAlertTimes.length < newTimesPerDay) {
+  //       newAlertTimes.push({ hours: 12, minutes: 0 });
+  //     }
+  //   }
+  //   setAlertTimes(newAlertTimes);
+
+  //   // Update editedAlert state with both new values
+  //   setEditedAlert((prev) => {
+  //     if (!prev) return null;
+  //     const updatedAlert = {
+  //       ...prev,
+  //       timesPerDay: newTimesPerDay,
+  //       alertTimes: newAlertTimes,
+  //     };
+  //     console.log("Updated editedAlert with new times:", updatedAlert);
+  //     return updatedAlert;
+  //   });
+  // };
+
   const handleTimesPerDayChange = (newTimesPerDay: number) => {
-    setTimesPerDay(newTimesPerDay);
+    if (!editedAlert) return;
+
     setEditedAlert((prev) => {
       if (!prev) return null;
-      return { ...prev, timesPerDay: newTimesPerDay };
+
+      const currentAlertTimes = prev.alertTimes || [];
+      const newAlertTimes = [...currentAlertTimes];
+
+      // Adjust the alertTimes array length based on newTimesPerDay
+      if (newTimesPerDay < currentAlertTimes.length) {
+        // If reducing times, remove extra times
+        newAlertTimes.splice(newTimesPerDay);
+      } else {
+        // If increasing times, add default times
+        while (newAlertTimes.length < newTimesPerDay) {
+          newAlertTimes.push({ hours: 12, minutes: 0 });
+        }
+      }
+
+      console.log("Updating times per day:", {
+        newTimesPerDay,
+        newAlertTimes,
+        currentLength: currentAlertTimes.length,
+      });
+
+      return {
+        ...prev,
+        timesPerDay: newTimesPerDay,
+        alertTimes: newAlertTimes,
+      };
     });
   };
 
@@ -110,19 +168,97 @@ const AlertDetailsModal: React.FC<AlertDetailsModalProps> = ({
     setShowPillListModal(false);
   };
 
+  // const handleUpdate = async () => {
+  //   if (!alert || !editedAlert) return;
+
+  //   try {
+  //     // Create a new update data object with the most current state values
+  //     const updateData = {
+  //       ...editedAlert,
+  //       pills: editedAlert.pills || [],
+  //       timesPerDay: timesPerDay,
+  //       alertTimes: alertTimes,
+  //       daysOfWeek: editedAlert.daysOfWeek || [],
+  //       isActive: editedAlert.isActive,
+  //     };
+
+  //     console.log("Sending update with data:", updateData);
+
+  //     const result = await dispatch(
+  //       updateAlert({ id: alert._id, data: updateData })
+  //     ).unwrap();
+
+  //     console.log("Update successful, received result:", result);
+
+  //     // Update local state with the result from the backend
+  //     setTimesPerDay(result.timesPerDay);
+  //     setAlertTimes(result.alertTimes);
+  //     setEditedAlert(result);
+
+  //     setIsEditing(false);
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("Error updating alert:", error);
+  //     setErrorMessage(error as string);
+  //   }
+  // };
+
+  // Add effect to log state changes
+
+  // useEffect(() => {
+  //   console.log("Current state:", {
+  //     timesPerDay,
+  //     alertTimes,
+  //     editedAlert,
+  //   });
+  // }, [timesPerDay, alertTimes, editedAlert]);
+
+  // Add cleanup effect when modal closes
+
   const handleUpdate = async () => {
     if (!alert || !editedAlert) return;
 
     try {
-      await dispatch(
-        updateAlert({ id: alert._id, data: editedAlert })
+      // Ensure timesPerDay matches the length of alertTimes
+      const currentAlertTimes = editedAlert.alertTimes || [];
+      const timesPerDay = currentAlertTimes.length;
+
+      // Create a new update data object with the most current state values
+      const updateData = {
+        ...editedAlert,
+        pills: editedAlert.pills || [],
+        timesPerDay: timesPerDay, // Use the length of alertTimes
+        alertTimes: currentAlertTimes,
+        daysOfWeek: editedAlert.daysOfWeek || [],
+        isActive: editedAlert.isActive,
+      };
+
+      console.log("Sending update with data:", updateData);
+
+      const result = await dispatch(
+        updateAlert({ id: alert._id, data: updateData })
       ).unwrap();
+
+      console.log("Update successful, received result:", result);
+
+      // Update local state with the result from the backend
+      setEditedAlert(result);
       setIsEditing(false);
       onClose();
     } catch (error) {
+      console.error("Error updating alert:", error);
       setErrorMessage(error as string);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      // Reset state when modal closes
+      setIsEditing(false);
+      setEditedAlert(null);
+      setErrorMessage("");
+    };
+  }, []);
 
   const renderPills = () => {
     if (!editedAlert?.pills || !Array.isArray(editedAlert.pills)) {
@@ -160,21 +296,28 @@ const AlertDetailsModal: React.FC<AlertDetailsModalProps> = ({
       <div
         key={`time-${num}`}
         className={`w-[40px] h-[40px] tSM2:w-[32px] tSM2:h-[32px] flex flex-row justify-center items-center border-solid border-[1px] border-khumbula_primary rounded-lg cursor-pointer active:scale-[1.02] hover:scale-[1.04] ${
-          timesPerDay === num ? "bg-khumbula_accent" : "bg-white"
+          editedAlert?.timesPerDay === num ? "bg-khumbula_accent" : "bg-white"
         }`}
         onClick={() => isEditing && handleTimesPerDayChange(num)}
       >
         <CustomText
           textLabel={num.toString()}
-          fontWeight={timesPerDay === num ? "font-medium" : "font-regular"}
+          fontWeight={
+            editedAlert?.timesPerDay === num ? "font-medium" : "font-regular"
+          }
           fontSize="text-[16px]"
-          fontColor={timesPerDay === num ? "text-white" : "text-black"}
+          fontColor={
+            editedAlert?.timesPerDay === num ? "text-white" : "text-black"
+          }
         />
       </div>
     ));
   };
 
   const renderTimerItems = () => {
+    const timesPerDay = editedAlert?.timesPerDay || 0;
+    const alertTimes = editedAlert?.alertTimes || [];
+
     return Array.from({ length: timesPerDay }, (_, index) => {
       const currentTime = alertTimes[index] || { hours: 12, minutes: 0 };
       const initialTime = `${currentTime.hours
@@ -191,12 +334,16 @@ const AlertDetailsModal: React.FC<AlertDetailsModalProps> = ({
           handleDelete={
             isEditing
               ? () => {
-                  setAlertTimes((prev) => {
-                    const newTimes = [...prev];
-                    newTimes.splice(index, 1);
-                    return newTimes;
+                  setEditedAlert((prev) => {
+                    if (!prev) return null;
+                    const newAlertTimes = [...(prev.alertTimes || [])];
+                    newAlertTimes.splice(index, 1);
+                    return {
+                      ...prev,
+                      timesPerDay: (prev.timesPerDay || 1) - 1,
+                      alertTimes: newAlertTimes,
+                    };
                   });
-                  setTimesPerDay((prev) => prev - 1);
                 }
               : () => {}
           }
