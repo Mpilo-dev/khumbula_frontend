@@ -78,18 +78,11 @@ const ForgotPasswordPage: React.FC = () => {
               <div className="w-[100%] h-auto">
                 <div className="w-full h-auto flex flex-col items-center gap-y-6 mLG:gap-y-3">
                   <div className="w-full h-auto flex flex-col items-center gap-y-[0]">
-                    <CustomText
-                      textLabel={"Enter your phone number to receive"}
-                      fontWeight="font-regular"
-                      fontSize="text-[22px]"
-                      fontColor={`text-black`}
-                    />
-                    <CustomText
-                      textLabel={"Password reset OTP"}
-                      fontWeight="font-regular"
-                      fontSize="text-[22px]"
-                      fontColor={`text-black`}
-                    />
+                    <div className="max-w-md text-center text-[22px] font-normal text-black">
+                      Enter your phone number to receive
+                      <br />
+                      Password reset OTP
+                    </div>
                   </div>
 
                   <div className="w-full h-auto self-start">
