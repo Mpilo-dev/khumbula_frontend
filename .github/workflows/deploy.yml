@@ -1,0 +1,55 @@
+name: Deploy Khumbula to AWS
+
+# Trigger on pushes to main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.1"
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4️⃣ Build Khumbula site
+      - name: Build Khumbula site
+        run: npm run build
+
+      # 5️⃣ Verify AWS CLI is available
+      - name: Verify AWS CLI
+        run: aws --version
+
+      # 6️⃣ Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 7️⃣ Deploy to S3
+      - name: Deploy to S3
+        shell: bash
+        run: aws s3 sync public/ s3://${{ secrets.S3_BUCKET_NAME }}
+
+      # 8️⃣ Invalidate CloudFront cache
+      - name: Invalidate CloudFront cache
+        shell: bash
+        run: >
+          aws cloudfront create-invalidation
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+          --paths "/*"
