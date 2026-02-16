@@ -25,6 +25,11 @@ Khumbula is a reminder web app designed to help users manage their medication sc
 - Yup
 - Axios (for API requests)
 
+## 🛠 DevOps
+
+- CI/CD (Github Actions)
+- AWS(S3, Route 53, Cloudfront, ACM)
+
 ## 📦 Getting Started
 
 ### 1. Clone the Repository
