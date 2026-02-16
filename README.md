@@ -1,4 +1,4 @@
-# KHUMBULA APP - 2025
+# KHUMBULA APP
 
 This is the front-end of the **Khumbula** application, built using React, TypeScript, Tailwind CSS, Redux Toolkit for state management, axios for http requests and React-hook-form + Yup for form handling and validation.
 
