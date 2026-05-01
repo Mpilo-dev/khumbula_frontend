@@ -3,7 +3,7 @@ import { store } from "../redux/store";
 
 const api = axios.create({
   // baseURL: "http://127.0.0.1:8000/",
-  baseURL: "https://api.khumbula.online/",
+  baseURL: "https://api.khumbula.shop/",
   headers: {
     "Content-Type": "application/json",
   },
